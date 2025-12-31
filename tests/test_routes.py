@@ -124,3 +124,27 @@ class TestAccountService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     # ADD YOUR TEST CASES HERE ...
+    def test_405(self):
+        """Test error handling for status 405 - for increased coverage"""
+        resp = self.client.post("/limited")  # triggers 405
+        assert resp.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
+
+    def test_500(self):
+        """Test error handling for status 500 - for increased coverage"""
+        resp = self.client.get("/crash")  # triggers 500
+        assert resp.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+
+    def test_get_account(self):
+        """Read an Account"""
+        acc = self._create_accounts(1)[0]
+        resp = self.client.get(
+            f"{BASE_URL}/{acc.id}", content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data_json = resp.get_json()
+        self.assertEqual(data_json["name"], acc.name)
+
+    def test_get_account_not_found(self):
+        """Read an Account that is not found"""
+        resp = self.client.get(f"{BASE_URL}/0")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)

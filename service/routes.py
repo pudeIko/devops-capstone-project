@@ -68,7 +68,15 @@ def create_accounts():
 # READ AN ACCOUNT
 ######################################################################
 
-# ... place you code here to READ an account ...
+@app.route("/accounts/<int:account_id>", methods=["GET"])
+def get_accounts(account_id):
+    """
+    Reads an Account
+    """
+    acc = Account.find(account_id)
+    if not acc:
+        abort(status.HTTP_404_NOT_FOUND, f"Did not find an account with id [{account_id}].")
+    return acc.serialize(), status.HTTP_200_OK
 
 
 ######################################################################
@@ -100,3 +108,13 @@ def check_content_type(media_type):
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         f"Content-Type must be {media_type}",
     )
+
+
+@app.route("/limited", methods=["GET"])
+def limited():
+    return "OK"
+
+
+@app.route("/crash")
+def crash():
+    raise Exception("Something broke!")
